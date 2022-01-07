@@ -1,6 +1,11 @@
 from random import choice
 
 GAME_CHOICES = ("r", "p", "s")  # rock, paper, scissor
+RULES = {
+    ('p', 'r'): 'p',
+    ('p', 's'): 's',
+    ('r', 's'): 'r',
+}
 
 
 class Player:
@@ -23,39 +28,64 @@ class System:
 
 
 class Winner:
-    RULES = {
-        ('r', 'p'): 'p',
-        ('p', 's'): 's',
-        ('r', 's'): 'r',
-    }
+    massage = None
 
-    def __init__(self):
-        self.player = Player.get_user_choice()
-        self.system = System.get_system_choice()
-
-    def find_winner(self):
-        match = {self.player, self.system}
+    def find_winner(self, player, system):
+        match = {player, system}
         if len(match) == 1:
-            print("equal")
             return None
-        print(tuple(sorted(match)))
-        return self.RULES[tuple(sorted(match))]
 
+        return RULES[tuple(sorted(match))]
 
-class PlayOnHand:
-    pass
+    def play_on_hand(self):
+        result = {"system": 0, "player": 0}
+        while result["system"] < 3 and result["player"] < 3:
+            player_choice = Player.get_user_choice()
+            system_choice = System.get_system_choice()
+            winner_of_game = self.find_winner(player_choice, system_choice)
 
+            if winner_of_game == player_choice:
+                self.massage = "you win"
+                result["player"] += 1
+                print(result["player"])
+            elif winner_of_game == system_choice:
+                self.massage = "you loss"
+                result["system"] += 1
+                print(result["system"])
+            else:
+                self.massage = "Draw"
 
-class PlayAgain:
-    pass
+        print(f"player choice: {player_choice}, system choice: {system_choice},"
+              f" winner: {self.massage}")
+        self.update(result)
 
+    def update(self, result):
+        scoreboard = {"system": 0, "player": 0}
+        if result["player"] == 3:
+            print("you win")
+            scoreboard["player"] += 1
+        elif result["system"] == 3:
+            scoreboard["system"] += 1
+            print("you loss")
 
-class Play:
-    PlayOnHand()
-    PlayAgain()
+        print("#" * 30)
+        print("##", f'\t user:{scoreboard["player"]}'.ljust(24), "##")
+        print("##", f'\t system:{scoreboard["system"]}'.ljust(24), "##")
+        print("##", f"\t last game: {self.massage}".ljust(24), "##")
+        print("#" * 30)
+        self.play_again()
+
+    def play_again(self):
+        again = input("do you want play again? (y/n) ")
+        if again == "y":
+            self.play_on_hand()
+        elif again == "n":
+            return f"goodbye!"
+        else:
+            print("wrong choice, try again please")
+            self.play_again()
 
 
 if __name__ == "__main__":
     winner = Winner()
-    play = Play()
-    winner.find_winner()
+    winner.play_on_hand()
