@@ -28,45 +28,48 @@ class System:
 
 
 class Winner:
-    massage = None
-
-    def find_winner(self, player, system):
+    @staticmethod
+    def find_winner(player, system):
         match = {player, system}
         if len(match) == 1:
             return None
 
         return RULES[tuple(sorted(match))]
 
+
+class Play:
+    massage = None
+
+    def __init__(self):
+        self.winner = Winner
+
     def play_on_hand(self):
         result = {"system": 0, "player": 0}
+
         while result["system"] < 3 and result["player"] < 3:
             player_choice = Player.get_user_choice()
             system_choice = System.get_system_choice()
-            winner_of_game = self.find_winner(player_choice, system_choice)
+            winner_of_game = self.winner.find_winner(player_choice, system_choice)
 
             if winner_of_game == player_choice:
                 self.massage = "you win"
                 result["player"] += 1
-                print(result["player"])
             elif winner_of_game == system_choice:
-                self.massage = "you loss"
+                self.massage = "system win"
                 result["system"] += 1
-                print(result["system"])
             else:
                 self.massage = "Draw"
 
-        print(f"player choice: {player_choice}, system choice: {system_choice},"
-              f" winner: {self.massage}")
+            print(f"player choice: {player_choice}, "
+                  f"system choice: {system_choice},winner: {self.massage}")
         self.update(result)
 
     def update(self, result):
         scoreboard = {"system": 0, "player": 0}
         if result["player"] == 3:
-            print("you win")
             scoreboard["player"] += 1
         elif result["system"] == 3:
             scoreboard["system"] += 1
-            print("you loss")
 
         print("#" * 30)
         print("##", f'\t user:{scoreboard["player"]}'.ljust(24), "##")
@@ -85,7 +88,11 @@ class Winner:
             print("wrong choice, try again please")
             self.play_again()
 
+    def run(self):
+        self.play_on_hand()
+        self.play_again()
+
 
 if __name__ == "__main__":
-    winner = Winner()
-    winner.play_on_hand()
+    play = Play()
+    play.run()
